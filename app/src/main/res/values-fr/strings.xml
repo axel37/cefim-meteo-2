@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Application Météo</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="city_name">New York</string>
+    <string name="city_desc">Ensoleillé</string>
+    <string name="city_temp">24°C</string>
+    <string name="title_activity_favorite">ScrollingActivity</string>
+    <string name="large_text">Lorem ipsum</string>
+    <string name="no_connexion">Aucune connexion</string>
+    <string name="favorite_add">Ajouter une ville</string>
+    <string name="favorite_add_description">Ajouter une ville pour un accès rapide.</string>
+    <string name="favorite_add_confirm">Enregistrer</string>
+    <string name="favorite_add_cancel">Annuler</string>
+</resources>
