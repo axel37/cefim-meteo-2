@@ -12,4 +12,20 @@ public class City {
         this.mTemperature = mTemperature;
         this.mWeatherIcon = mWeatherIcon;
     }
+
+    public String getmName() {
+        return mName;
+    }
+
+    public String getmDescription() {
+        return mDescription;
+    }
+
+    public String getmTemperature() {
+        return mTemperature;
+    }
+
+    public int getmWeatherIcon() {
+        return mWeatherIcon;
+    }
 }

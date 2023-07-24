@@ -3,21 +3,17 @@ package fr.axelc.cefimmeteo.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Log;
-import android.view.View;
-
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import fr.axelc.cefimmeteo.utils.Util;
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import fr.axelc.cefimmeteo.R;
+import fr.axelc.cefimmeteo.utils.Util;
 
 
 public class MainActivity extends AppCompatActivity {

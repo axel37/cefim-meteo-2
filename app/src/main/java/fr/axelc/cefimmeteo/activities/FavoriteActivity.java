@@ -1,37 +1,34 @@
 package fr.axelc.cefimmeteo.activities;
 
+import android.content.Context;
 import android.os.Bundle;
-
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.View;
-import android.widget.TextView;
-import fr.axelc.cefimmeteo.models.City;
-import fr.axelc.cefimmeteo.utils.Util;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import com.google.android.material.snackbar.Snackbar;
 import fr.axelc.cefimmeteo.R;
+import fr.axelc.cefimmeteo.adapters.FavoriteAdapter;
+import fr.axelc.cefimmeteo.databinding.ActivityFavoriteBinding;
+import fr.axelc.cefimmeteo.models.City;
 
 import java.util.ArrayList;
 
 public class FavoriteActivity extends AppCompatActivity {
     private ArrayList<City> mCities;
+    private ActivityFavoriteBinding binding;
+    private FavoriteAdapter mAdapter;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorite);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        CollapsingToolbarLayout toolBarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        toolBarLayout.setTitle(getTitle());
+        binding = ActivityFavoriteBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setSupportActionBar(binding.toolbar);
+        binding.toolbarLayout.setTitle(getTitle());
+        mContext = this;
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -58,5 +55,8 @@ public class FavoriteActivity extends AppCompatActivity {
         mCities.add(city3);
         mCities.add(city4);
 
+        binding.included.recyclerViewCities.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter = new FavoriteAdapter(mContext, mCities);
+        binding.included.recyclerViewCities.setAdapter(mAdapter);
     }
 }
