@@ -32,29 +32,23 @@ public class FavoriteActivity extends AppCompatActivity {
         binding.toolbarLayout.setTitle(getTitle());
         mContext = this;
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                builder.setTitle(R.string.favorite_add);
-                builder.setMessage(R.string.favorite_add_description);
-                View v = LayoutInflater.from(mContext).inflate(R.layout.dialog_add_favorite, null);
-                final EditText editTextCity = v.findViewById(R.id.favorite_add_edit_text_city);
-                builder.setView(v);
-                builder.setPositiveButton(getString(R.string.favorite_add_confirm), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        mCities.add(new City(editTextCity.getText().toString(), "Pas d'informations, mais il fait probablement chaud", "?°C", R.drawable.weather_sunny_white));
-                        mAdapter.notifyDataSetChanged();
-                    }
-                });
-                builder.setNegativeButton(getString(R.string.favorite_add_cancel), (dialogInterface, i) -> {
-
-                });
-
-                builder.create().show();
-            }
-        });
+        binding.fab.setOnClickListener(view ->
+                {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    builder.setTitle(R.string.favorite_add);
+                    builder.setMessage(R.string.favorite_add_description);
+                    View v = LayoutInflater.from(mContext).inflate(R.layout.dialog_add_favorite, null);
+                    final EditText editTextCity = v.findViewById(R.id.favorite_add_edit_text_city);
+                    builder.setView(v);
+                    builder.setPositiveButton(getString(R.string.favorite_add_confirm), (dialogInterface, i) ->
+                            {
+                                mCities.add(new City(editTextCity.getText().toString(), "Pas d'informations, mais il fait probablement chaud", "?°C", R.drawable.weather_sunny_white));
+                                mAdapter.notifyDataSetChanged();
+                            }
+                    );
+                    builder.create().show();
+                }
+        );
 
         mCities = new ArrayList<City>();
         City city1 = new City("Tours", "Il fait chaud", "39°C", R.drawable.weather_sunny_white);

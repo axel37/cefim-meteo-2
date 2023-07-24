@@ -12,4 +12,7 @@
     <string name="favorite_add_description">Ajouter une ville pour un accès rapide.</string>
     <string name="favorite_add_confirm">Enregistrer</string>
     <string name="favorite_add_cancel">Annuler</string>
+    <string name="favorite_remove_title">Retirer %1$s de vos favoris ?</string>
+    <string name="favorite_remove_confirm">Supprimer</string>
+    <string name="favorite_remove_cancel">Annuler</string>
 </resources>
