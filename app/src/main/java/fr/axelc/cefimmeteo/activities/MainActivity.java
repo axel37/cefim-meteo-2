@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,51 +14,88 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import fr.axelc.cefimmeteo.R;
+import fr.axelc.cefimmeteo.databinding.ActivityMainBinding;
+import fr.axelc.cefimmeteo.models.City;
 import fr.axelc.cefimmeteo.utils.Util;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+
+import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity {
-    private FloatingActionButton mFloatingButtonFavorite;
-    private EditText mEditTextMessage;
-
-    private LinearLayout mLinearLayoutMain;
-    private TextView mTextViewNoConnection;
-
     private Context mContext;
+    private OkHttpClient mHttpClient;
+    private City mCurrentCity;
+    private ActivityMainBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
         mContext = this;
+        mHttpClient = new OkHttpClient();
 
-        mLinearLayoutMain = findViewById(R.id.linear_layout_current_city);
-        mTextViewNoConnection = findViewById(R.id.text_view_no_connection);
-        mFloatingButtonFavorite = findViewById(R.id.floating_action_button_favorite);
-        mEditTextMessage = findViewById(R.id.edit_text_message);
-
-        mFloatingButtonFavorite.setOnClickListener(new View.OnClickListener() {
+        mBinding.floatingActionButtonFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, FavoriteActivity.class);
-                intent.putExtra(Util.KEY_MESSAGE, mEditTextMessage.getText().toString());
+                intent.putExtra(Util.KEY_MESSAGE, mBinding.editTextMessage.getText().toString());
                 startActivity(intent);
             }
         });
 
         if (Util.isActiveNetwork(mContext)) {
-            Log.d("TAG", "Je suis connecté");
+            Log.d("APP", "Je suis connecté");
+            Request request = new Request.Builder().url("https://api.openweathermap.org/data/2.5/weather?lat=47.390026&lon=0.688891&appid=01897e497239c8aff78d9b8538fb24ea&units=metric&lang=fr").build();
+            mHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (response.body() != null) {
+                                        updateUi(response.body().string());
+                                    }
+                                } catch (JSONException | IOException e) {
+                                    Log.e("APP", "run: updateUi", e);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+
         } else {
-            Log.d("TAG", "Je ne suis pas connecté");
+            Log.d("APP", "Je ne suis pas connecté");
             updateViewNoConnection();
         }
     }
 
+    public void updateUi(String responseJson) throws JSONException {
+        Log.d("APP", "updateUi() called with: responseJson = [" + responseJson + "]");
+        mCurrentCity = new City(responseJson);
+        mBinding.textViewCityName.setText(mCurrentCity.getmName());
+        mBinding.textViewCityTemp.setText(mCurrentCity.getmTemperature());
+        mBinding.textViewCityDesc.setText(mCurrentCity.getmDescription());
+        mBinding.imageViewCityWeather.setImageResource(R.drawable.ic_launcher_foreground);
+
+    }
+
     public void updateViewNoConnection() {
-        mLinearLayoutMain.setVisibility(View.INVISIBLE);
-        mFloatingButtonFavorite.setVisibility(View.INVISIBLE);
-        mTextViewNoConnection.setVisibility(View.VISIBLE);
+        mBinding.linearLayoutCurrentCity.setVisibility(View.INVISIBLE);
+        mBinding.floatingActionButtonFavorite.setVisibility(View.INVISIBLE);
+        mBinding.textViewNoConnection.setVisibility(View.VISIBLE);
     }
 
     @Override
