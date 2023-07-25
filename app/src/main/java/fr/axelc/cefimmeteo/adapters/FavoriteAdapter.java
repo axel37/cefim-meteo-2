@@ -32,7 +32,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         View v = LayoutInflater.from(mContext).inflate(R.layout.item_favorite_city, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(v);
-        viewHolder.mAdapter = this;
 
         return viewHolder;
     }
@@ -54,7 +53,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
-        private FavoriteAdapter mAdapter;
         private City mCity;
         private TextView mTextViewCityName;
         private TextView mTextViewCityDescription;
@@ -78,7 +76,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     mCities.remove(mCity);
-                    mAdapter.notifyDataSetChanged();
+                    notifyDataSetChanged();
                 }
             });
             builder.setNegativeButton(R.string.favorite_remove_cancel, (dialogInterface, i) -> {

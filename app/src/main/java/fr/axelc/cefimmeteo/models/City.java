@@ -25,6 +25,7 @@ public class City {
         mName = jsonObject.getString("name");
         mDescription = jsonObject.getJSONArray("weather").getJSONObject(0).getString("description");
         mTemperature = jsonObject.getJSONObject("main").getString("temp") + "°C";
+//        mWeatherResIconWhite = jsonObject.getJSONArray("weather").getJSONObject(0).getString("icon");
     }
 
     public String getmName() {
