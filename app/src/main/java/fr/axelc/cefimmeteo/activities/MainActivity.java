@@ -25,6 +25,7 @@ import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity {
+    private static final String REQUEST_URL = "https://api.openweathermap.org/data/2.5/weather?lat=47.390026&lon=0.688891&appid=01897e497239c8aff78d9b8538fb24ea&units=metric&lang=fr";
     private Context mContext;
     private OkHttpClient mHttpClient;
     private City mCurrentCity;
@@ -39,41 +40,13 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
         mHttpClient = new OkHttpClient();
 
-        mBinding.floatingActionButtonFavorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, FavoriteActivity.class);
-                intent.putExtra(Util.KEY_MESSAGE, mBinding.editTextMessage.getText().toString());
-                startActivity(intent);
-            }
+        mBinding.floatingActionButtonFavorite.setOnClickListener(view -> {
+            goToFavoriteActivity();
         });
 
         if (Util.isActiveNetwork(mContext)) {
             Log.d("APP", "Je suis connecté");
-            Request request = new Request.Builder().url("https://api.openweathermap.org/data/2.5/weather?lat=47.390026&lon=0.688891&appid=01897e497239c8aff78d9b8538fb24ea&units=metric&lang=fr").build();
-            mHttpClient.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                }
-
-                @Override
-                public void onResponse(@NotNull Call call, @NotNull Response response) {
-                    if (response.isSuccessful()) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    if (response.body() != null) {
-                                        updateUi(response.body().string());
-                                    }
-                                } catch (JSONException | IOException e) {
-                                    Log.e("APP", "run: updateUi", e);
-                                }
-                            }
-                        });
-                    }
-                }
-            });
+            doWeatherRequest();
 
 
         } else {
@@ -82,13 +55,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void doWeatherRequest() {
+        Request request = new Request.Builder().url(REQUEST_URL).build();
+        mHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                if (response.isSuccessful()) {
+                    onWeatherRequestSuccess(response);
+                }
+            }
+        });
+    }
+
+    private void onWeatherRequestSuccess(@NotNull Response response) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (response.body() != null) {
+                        updateUi(response.body().string());
+                    }
+                } catch (JSONException | IOException e) {
+                    Log.e("APP", "run: updateUi", e);
+                }
+            }
+        });
+    }
+
+    private void goToFavoriteActivity() {
+        Intent intent = new Intent(mContext, FavoriteActivity.class);
+        intent.putExtra(Util.KEY_MESSAGE, mBinding.editTextMessage.getText().toString());
+        startActivity(intent);
+    }
+
     public void updateUi(String responseJson) throws JSONException {
         Log.d("APP", "updateUi() called with: responseJson = [" + responseJson + "]");
         mCurrentCity = new City(responseJson);
         mBinding.textViewCityName.setText(mCurrentCity.getmName());
         mBinding.textViewCityTemp.setText(mCurrentCity.getmTemperature());
         mBinding.textViewCityDesc.setText(mCurrentCity.getmDescription());
-        mBinding.imageViewCityWeather.setImageResource(R.drawable.ic_launcher_foreground);
+        mBinding.imageViewCityWeather.setImageResource(mCurrentCity.getmWeatherIcon());
 
     }
 

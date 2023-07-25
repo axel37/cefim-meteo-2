@@ -17,7 +17,6 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,11 +88,11 @@ public class FavoriteActivity extends AppCompatActivity {
 
     private void onGeocodingRequestResponse(@NotNull Response response, String cityName) {
         if (response.isSuccessful()) {
-            onGeocodingRequestResponseSucess(response, cityName);
+            onGeocodingRequestResponseSuccess(response, cityName);
         }
     }
 
-    private void onGeocodingRequestResponseSucess(@NotNull Response response, String cityName) {
+    private void onGeocodingRequestResponseSuccess(@NotNull Response response, String cityName) {
         try {
             String responseString = response.body().string();
             JSONArray data = new JSONArray(responseString);
