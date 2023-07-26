@@ -15,4 +15,8 @@
     <string name="favorite_remove_title">Retirer %1$s de vos favoris ?</string>
     <string name="favorite_remove_confirm">Supprimer</string>
     <string name="favorite_remove_cancel">Annuler</string>
+    <string name="favorite_error_cant_find_city">Ville introuvable.</string>
+    <string name="favorite_error_cant_add_favorite">Impossible d\'ajouter la ville aux favoris.</string>
+    <string name="favorite_error_couldnt_get_weather">Impossible de récupérer les données météo pour cette ville.
+    </string>
 </resources>

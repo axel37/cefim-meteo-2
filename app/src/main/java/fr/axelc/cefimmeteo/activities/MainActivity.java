@@ -72,16 +72,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onWeatherRequestSuccess(@NotNull Response response) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (response.body() != null) {
-                        updateUi(response.body().string());
-                    }
-                } catch (JSONException | IOException e) {
-                    Log.e("APP", "run: updateUi", e);
+        runOnUiThread(() -> {
+            try {
+                if (response.body() != null) {
+                    updateUi(response.body().string());
                 }
+            } catch (JSONException | IOException e) {
+                Log.e("APP", "run: updateUi", e);
             }
         });
     }

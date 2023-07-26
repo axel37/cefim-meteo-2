@@ -27,10 +27,7 @@ public class City {
     private String mDescription;
     private String mTemperature;
     private int mWeatherIcon;
-    private int mCityId;
-    private double mLatitude;
-    private double mLongitude;
-    private int mWeatherResIconWhite;
+    private String mJsonString;
 
     public City(String mName, String mDescription, String mTemperature, int mWeatherIcon) {
         this.mName = mName;
@@ -46,6 +43,7 @@ public class City {
         mTemperature = jsonObject.getJSONObject("main").getString("temp") + "°C";
         String iconId = jsonObject.getJSONArray("weather").getJSONObject(0).getString("icon");
         setIconFromIconId(iconId);
+        mJsonString = json;
     }
 
     private void setIconFromIconId(String iconId) {

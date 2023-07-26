@@ -103,5 +103,8 @@
     <string name="favorite_remove_title">Remove %1$s from your favorites ?</string>
     <string name="favorite_remove_confirm">Remove</string>
     <string name="favorite_remove_cancel">Cancel</string>
+    <string name="favorite_error_cant_find_city">Could not find city.</string>
+    <string name="favorite_error_cant_add_favorite">Could not add city to favorites.</string>
+    <string name="favorite_error_couldnt_get_weather">Could not get weather data for this city.</string>
 
 </resources>

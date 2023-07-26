@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,14 +53,19 @@ public class FavoriteActivity extends AppCompatActivity {
                     final EditText editTextCity = v.findViewById(R.id.favorite_add_edit_text_city);
                     builder.setView(v);
                     builder.setPositiveButton(getString(R.string.favorite_add_confirm), (dialogInterface, i) ->
-                            {
-                                getGeocodingData(editTextCity.getText().toString());
-                            }
+                            doWeatherRequests(editTextCity.getText().toString())
                     );
                     builder.create().show();
                 }
         );
 
+        initCityList();
+    }
+
+    /**
+     * Create list of cities and bind it RecyclerViewCities
+     */
+    private void initCityList() {
         mCities = new ArrayList<>();
 
         binding.included.recyclerViewCities.setLayoutManager(new LinearLayoutManager(this));
@@ -68,59 +74,68 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     /**
-     * Récupérer coordonnées en fonction d'un nom de ville, puis récupérer la météo pour l'afficher
+     * Request API for weather data by city name then display results.
      */
-    private void getGeocodingData(String cityName) {
+    private void doWeatherRequests(String cityName) {
         String urlTemplate = API_URL_GEO + "direct?q=%s&limit=1" + API_AUTH;
         Request geocoderRequest = new Request.Builder().url(String.format(urlTemplate, cityName)).build();
         httpClient.newCall(geocoderRequest).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                onGeocodingRequestFailure(e);
+                showErrorToastAndLog(
+                        R.string.favorite_error_cant_find_city,
+                        "Error while requesting Geocoding data ",
+                        e
+                );
             }
 
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                onGeocodingRequestResponse(response, cityName);
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                if (response.isSuccessful()) {
+                    doWeatherRequestFromGeocodingResponse(response);
+                } else {
+                    showErrorToastAndLog(
+                            R.string.favorite_error_cant_find_city,
+                            "Geocoding API returned error response = [" + response + "]"
+                    );
+                }
             }
         });
     }
 
-    private void onGeocodingRequestResponse(@NotNull Response response, String cityName) {
-        if (response.isSuccessful()) {
-            onGeocodingRequestResponseSuccess(response, cityName);
-        }
-    }
-
-    private void onGeocodingRequestResponseSuccess(@NotNull Response response, String cityName) {
+    private void doWeatherRequestFromGeocodingResponse(@NotNull Response response) {
         try {
             String responseString = response.body().string();
             JSONArray data = new JSONArray(responseString);
             String lon = data.getJSONObject(0).getString("lon");
             String lat = data.getJSONObject(0).getString("lat");
 
-            getWeatherData(lon, lat);
+            doWeatherRequestOnCoordinates(lon, lat);
 
         } catch (Exception e) {
-            Log.e("APP", "Error while getting geocoding data", e);
+            showErrorToastAndLog(
+                    R.string.favorite_error_cant_find_city,
+                    "Error while parsing geocoding data", e
+            );
         }
     }
 
-    private void onGeocodingRequestFailure(@NotNull IOException e) {
-        Log.e("APP", "Error while requesting Geocoding data " + e);
-    }
 
-    private void getWeatherData(String longitude, String latitude) {
+    private void doWeatherRequestOnCoordinates(String longitude, String latitude) {
         String urlTemplate = API_URL_WEATHER + "?lat=%s&lon=%s" + API_WEATHER_OPTIONS + API_AUTH;
         Request weatherRequest = new Request.Builder().url(String.format(urlTemplate, latitude, longitude)).build();
         httpClient.newCall(weatherRequest).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                onWeatherRequestFailure(e);
+                showErrorToastAndLog(
+                        R.string.favorite_error_cant_find_city,
+                        "onWeatherRequestFailure: Error while getting geocoding data",
+                        e
+                );
             }
 
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
                 onWeatherRequestResponse(response);
             }
         });
@@ -129,6 +144,11 @@ public class FavoriteActivity extends AppCompatActivity {
     private void onWeatherRequestResponse(@NotNull Response response) {
         if (response.isSuccessful()) {
             onWeatherRequestResponseSuccess(response);
+        } else {
+            showErrorToastAndLog(
+                    R.string.favorite_error_couldnt_get_weather,
+                    "Weather API returned error response : " + response
+            );
         }
     }
 
@@ -138,10 +158,12 @@ public class FavoriteActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 addCityToListFromJson(responseString);
             });
-
-
         } catch (Exception e) {
-            Log.e("APP", "Error while getting weather data", e);
+            showErrorToastAndLog(
+                    R.string.favorite_error_couldnt_get_weather,
+                    "Error while getting weather data",
+                    e
+            );
         }
     }
 
@@ -151,12 +173,28 @@ public class FavoriteActivity extends AppCompatActivity {
             mCities.add(0, city);
             mAdapter.notifyItemInserted(0);
         } catch (JSONException e) {
-            Log.e("APP", "addCityToListFromJson: Error while adding city to list", e);
+            showErrorToastAndLog(
+                    R.string.favorite_error_cant_add_favorite,
+                    "addCityToListFromJson: Error while adding city to list",
+                    e
+            );
         }
     }
 
-    private void onWeatherRequestFailure(IOException e) {
-        Log.e("APP", "Error while requesting Geocoding data " + e);
+    private void showErrorToastAndLog(int toastMessageId, String logMessage) {
+        displayToast(getString(toastMessageId));
+        Log.d("APP", "notifyError: " + logMessage);
     }
 
+    private void showErrorToastAndLog(int toastMessageId, String logMessage, Exception exception) {
+        displayToast(getString(toastMessageId));
+        Log.e("APP", "notifyError: " + logMessage, exception);
+    }
+
+    /**
+     * Display a Toast on UI thread
+     */
+    private void displayToast(String message) {
+        runOnUiThread(() -> Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show());
+    }
 }
