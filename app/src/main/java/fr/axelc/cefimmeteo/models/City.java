@@ -104,4 +104,8 @@ public class City {
     public int getmWeatherIcon() {
         return mWeatherIcon;
     }
+
+    public String getmJsonString() {
+        return mJsonString;
+    }
 }

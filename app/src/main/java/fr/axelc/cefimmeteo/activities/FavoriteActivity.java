@@ -14,6 +14,7 @@ import fr.axelc.cefimmeteo.R;
 import fr.axelc.cefimmeteo.adapters.FavoriteAdapter;
 import fr.axelc.cefimmeteo.databinding.ActivityFavoriteBinding;
 import fr.axelc.cefimmeteo.models.City;
+import fr.axelc.cefimmeteo.utils.Util;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -62,11 +63,17 @@ public class FavoriteActivity extends AppCompatActivity {
         initCityList();
     }
 
+    @Override
+    protected void onDestroy() {
+        Util.saveFavoriteCities(mContext, mCities);
+        super.onDestroy();
+    }
+
     /**
      * Create list of cities and bind it RecyclerViewCities
      */
     private void initCityList() {
-        mCities = new ArrayList<>();
+        mCities = Util.loadFavoriteCities(mContext);
 
         binding.included.recyclerViewCities.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new FavoriteAdapter(mContext, mCities);
