@@ -4,13 +4,16 @@ import android.util.Log;
 import fr.axelc.cefimmeteo.models.City;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 
 import java.io.IOException;
 
 public class OpenWeatherMapApi {
     private static final String API_URL_BASE = "https://api.openweathermap.org";
+    private static final String API_URL_GEO = API_URL_BASE + "/geo/1.0/direct";
     private static final String API_URL_WEATHER = API_URL_BASE + "/data/2.5/weather";
     private static final String API_WEATHER_OPTIONS = "&units=metric&lang=fr";
+    private static final String API_GEO_OPTIONS = "&limit=";
     private static final String API_AUTH = "&appid=8db629c9dd7b6e807faf04d2135f6d89";
     private final OkHttpClient httpClient = new OkHttpClient();
 
@@ -35,6 +38,37 @@ public class OpenWeatherMapApi {
                     } catch (Exception e) {
                         Log.e("APP", "onResponse: API request failed", e);
                     }
+                }
+            }
+        });
+    }
+
+    public void requestCityByName(String cityName, OnResponseInterface onResponse) {
+        String urlTemplate = API_URL_GEO + "?q=%s" + API_GEO_OPTIONS + API_AUTH;
+        Request geocoderRequest = new Request.Builder().url(String.format(urlTemplate, cityName)).build();
+        Log.d("APP", "Requesting weather data for city [name=" + cityName + "]");
+
+        httpClient.newCall(geocoderRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Log.e("APP", "onFailure: API request failed", e);
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                if (response.isSuccessful()) {
+                    try {
+                        String responseString = response.body().string();
+                        JSONArray data = new JSONArray(responseString);
+                        String lon = data.getJSONObject(0).getString("lon");
+                        String lat = data.getJSONObject(0).getString("lat");
+
+                        requestCityByCoordinates(lon, lat, onResponse);
+                    } catch (Exception e) {
+                        Log.e("APP", "Error while parsing geocoding data.", e);
+                    }
+                } else {
+                    Log.d("APP", "requestCityByName failure.");
                 }
             }
         });
