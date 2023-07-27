@@ -46,8 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Get weather data (if we're online + have geolocation)
         if (Util.isNetworkingActive(mContext)) {
-            boolean permissionGranted = Util.isGeolocationPermissionGranted(mContext);
-            if (permissionGranted) {
+            if (Util.isGeolocationPermissionGranted(mContext)) {
                 configureLocationListener(LocationManager.GPS_PROVIDER);
             } else {
                 requestGeolocationPermissions();
