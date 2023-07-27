@@ -4,18 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import fr.axelc.cefimmeteo.R;
+import androidx.lifecycle.ViewModelProvider;
 import fr.axelc.cefimmeteo.databinding.ActivityMainBinding;
 import fr.axelc.cefimmeteo.models.City;
+import fr.axelc.cefimmeteo.uistate.MainViewModel;
 import fr.axelc.cefimmeteo.utils.Util;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +22,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String REQUEST_URL = "https://api.openweathermap.org/data/2.5/weather?lat=47.390026&lon=0.688891&appid=01897e497239c8aff78d9b8538fb24ea&units=metric&lang=fr";
     private Context mContext;
     private OkHttpClient mHttpClient;
-    private City mCurrentCity;
     private ActivityMainBinding mBinding;
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,17 +34,18 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
         mHttpClient = new OkHttpClient();
 
-        mBinding.floatingActionButtonFavorite.setOnClickListener(view -> {
-            goToFavoriteActivity();
-        });
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        if (Util.isActiveNetwork(mContext)) {
-            Log.d("APP", "Je suis connecté");
+        mBinding.floatingActionButtonFavorite.setOnClickListener(view -> goToFavoriteActivity());
+
+        if (viewModel.getCity() != null) {
+            Log.d("APP", "Displaying cached weather data.");
+            updateUiWithViewModelCity();
+        } else if (Util.isActiveNetwork(mContext)) {
+            Log.d("APP", "Requesting weather data from OpenWeatherMap API.");
             doWeatherRequest();
-
-
         } else {
-            Log.d("APP", "Je ne suis pas connecté");
+            Log.d("APP", "No internet connection. Can't display weather data.");
             updateViewNoConnection();
         }
     }
@@ -75,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             try {
                 if (response.body() != null) {
-                    updateUi(response.body().string());
+                    updateViewModelCityFromJson(response.body().string());
                 }
             } catch (JSONException | IOException e) {
                 Log.e("APP", "run: updateUi", e);
@@ -89,41 +84,22 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void updateUi(String responseJson) throws JSONException {
-        Log.d("APP", "updateUi() called with: responseJson = [" + responseJson + "]");
-        mCurrentCity = new City(responseJson);
-        mBinding.textViewCityName.setText(mCurrentCity.getmName());
-        mBinding.textViewCityTemp.setText(mCurrentCity.getmTemperature());
-        mBinding.textViewCityDesc.setText(mCurrentCity.getmDescription());
-        mBinding.imageViewCityWeather.setImageResource(mCurrentCity.getmWeatherIcon());
 
+    private void updateViewModelCityFromJson(String json) throws JSONException {
+        viewModel.setCity(new City(json));
+        updateUiWithViewModelCity();
     }
 
-    public void updateViewNoConnection() {
+    private void updateUiWithViewModelCity() {
+        mBinding.textViewCityName.setText(viewModel.getCity().getmName());
+        mBinding.textViewCityTemp.setText(viewModel.getCity().getmTemperature());
+        mBinding.textViewCityDesc.setText(viewModel.getCity().getmDescription());
+        mBinding.imageViewCityWeather.setImageResource(viewModel.getCity().getmWeatherIcon());
+    }
+
+    private void updateViewNoConnection() {
         mBinding.linearLayoutCurrentCity.setVisibility(View.INVISIBLE);
         mBinding.floatingActionButtonFavorite.setVisibility(View.INVISIBLE);
         mBinding.textViewNoConnection.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }
