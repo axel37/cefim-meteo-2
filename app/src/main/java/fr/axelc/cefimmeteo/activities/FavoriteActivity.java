@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,9 +45,18 @@ public class FavoriteActivity extends AppCompatActivity {
                     final EditText editTextCity = v.findViewById(R.id.favorite_add_edit_text_city);
                     builder.setView(v);
                     builder.setPositiveButton(getString(R.string.favorite_add_confirm), (dialogInterface, i) ->
-                            api.requestCityByName(editTextCity.getText().toString(), city -> {
-                                Log.d("APP", "Got API response for " + city.getmName());
-                                runOnUiThread(() -> addCityToList(city));
+                            api.requestCityByName(editTextCity.getText().toString(), new OpenWeatherMapApi.OnResponseInterface() {
+                                @Override
+                                public void onSuccess(City city) {
+                                    Log.d("APP", "Got API response for " + city.getmName());
+                                    runOnUiThread(() -> addCityToList(city));
+                                }
+
+                                @Override
+                                public void onError() {
+                                    runOnUiThread(() -> Toast.makeText(mContext, "Couldn't fetch weather data.", Toast.LENGTH_SHORT).show());
+                                }
+
                             })
                     );
                     builder.create().show();

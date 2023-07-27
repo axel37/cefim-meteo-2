@@ -17,7 +17,7 @@ public class OpenWeatherMapApi {
     private static final String API_AUTH = "&appid=8db629c9dd7b6e807faf04d2135f6d89";
     private final OkHttpClient httpClient = new OkHttpClient();
 
-    public void requestCityByCoordinates(String lon, String lat, OnResponseInterface onResponse) {
+    public void requestCityByCoordinates(String lon, String lat, OnResponseInterface then) {
         String urlTemplate = API_URL_WEATHER + "?lon=%s&lat=%s" + API_WEATHER_OPTIONS + API_AUTH;
         Request request = new Request.Builder().url(String.format(urlTemplate, lon, lat)).build();
 
@@ -26,6 +26,7 @@ public class OpenWeatherMapApi {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Log.e("APP", "requestCityByCoordinates Failure", e);
+                then.onError();
             }
 
             @Override
@@ -33,9 +34,10 @@ public class OpenWeatherMapApi {
                 if (response.isSuccessful()) {
                     try {
                         City city = new City(response.body().string());
-                        onResponse.onResponse(city);
+                        then.onSuccess(city);
 
                     } catch (Exception e) {
+                        then.onError();
                         Log.e("APP", "onResponse: API request failed", e);
                     }
                 }
@@ -43,7 +45,7 @@ public class OpenWeatherMapApi {
         });
     }
 
-    public void requestCityByName(String cityName, OnResponseInterface onResponse) {
+    public void requestCityByName(String cityName, OnResponseInterface then) {
         String urlTemplate = API_URL_GEO + "?q=%s" + API_GEO_OPTIONS + API_AUTH;
         Request geocoderRequest = new Request.Builder().url(String.format(urlTemplate, cityName)).build();
         Log.d("APP", "Requesting weather data for city [name=" + cityName + "]");
@@ -51,6 +53,7 @@ public class OpenWeatherMapApi {
         httpClient.newCall(geocoderRequest).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                then.onError();
                 Log.e("APP", "onFailure: API request failed", e);
             }
 
@@ -63,19 +66,22 @@ public class OpenWeatherMapApi {
                         String lon = data.getJSONObject(0).getString("lon");
                         String lat = data.getJSONObject(0).getString("lat");
 
-                        requestCityByCoordinates(lon, lat, onResponse);
+                        requestCityByCoordinates(lon, lat, then);
                     } catch (Exception e) {
+                        then.onError();
                         Log.e("APP", "Error while parsing geocoding data.", e);
                     }
                 } else {
-                    Log.d("APP", "requestCityByName failure.");
+                    then.onError();
                 }
             }
         });
     }
 
     public interface OnResponseInterface {
-        void onResponse(City city);
+        void onSuccess(City city);
+
+        void onError();
     }
 }
 

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import fr.axelc.cefimmeteo.databinding.ActivityMainBinding;
 import fr.axelc.cefimmeteo.models.City;
@@ -26,10 +27,19 @@ public class MainActivity extends AppCompatActivity {
         mBinding.floatingActionButtonFavorite.setOnClickListener(view -> goToFavoriteActivity());
         api = new OpenWeatherMapApi();
 
+        // Get weather data unless we're offline
         if (Util.isActiveNetwork(mContext)) {
-            api.requestCityByCoordinates("0.688891", "47.390026", city -> {
-                Log.d("APP", "Got API response for " + city.getmName());
-                runOnUiThread(() -> updateUi(city));
+            api.requestCityByCoordinates("0.688891", "47.390026", new OpenWeatherMapApi.OnResponseInterface() {
+                @Override
+                public void onSuccess(City city) {
+                    Log.d("APP", "Got API response for " + city.getmName());
+                    runOnUiThread(() -> updateUi(city));
+                }
+
+                @Override
+                public void onError() {
+                    runOnUiThread(() -> Toast.makeText(mContext, "Couldn't fetch weather.", Toast.LENGTH_SHORT).show());
+                }
             });
         } else {
             updateViewNoConnection();
