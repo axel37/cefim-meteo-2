@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import fr.axelc.cefimmeteo.R;
 import fr.axelc.cefimmeteo.databinding.ActivityMainBinding;
 import fr.axelc.cefimmeteo.models.City;
 import fr.axelc.cefimmeteo.utils.OpenWeatherMapApi;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onError() {
-                    runOnUiThread(() -> Toast.makeText(mContext, "Couldn't fetch weather.", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(mContext, getText(R.string.favorite_error_couldnt_get_weather), Toast.LENGTH_SHORT).show());
                 }
             });
         } else {

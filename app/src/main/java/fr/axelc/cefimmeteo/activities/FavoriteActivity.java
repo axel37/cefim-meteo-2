@@ -54,7 +54,7 @@ public class FavoriteActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onError() {
-                                    runOnUiThread(() -> Toast.makeText(mContext, "Couldn't fetch weather data.", Toast.LENGTH_SHORT).show());
+                                    runOnUiThread(() -> Toast.makeText(mContext, getText(R.string.favorite_error_couldnt_get_weather), Toast.LENGTH_SHORT).show());
                                 }
 
                             })
