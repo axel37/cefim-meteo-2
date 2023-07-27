@@ -13,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import fr.axelc.cefimmeteo.R;
 import fr.axelc.cefimmeteo.databinding.ActivityMainBinding;
 import fr.axelc.cefimmeteo.models.City;
@@ -23,9 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class MainActivity extends AppCompatActivity {
-    private static final String PERMISSION_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
-    private static final String PERMISSION_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
-    private static final int REQUEST_CODE = 1132478;
+    private static final int GEOLOCATION_PERMISSION_REQUEST_CODE = 1132478;
     private Context mContext;
     private ActivityMainBinding mBinding;
     private OpenWeatherMapApi mApi;
@@ -40,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
         mBinding.floatingActionButtonFavorite.setOnClickListener(view -> goToFavoriteActivity());
         mApi = new OpenWeatherMapApi();
+        // Geolocation
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mLocationListener = location -> requestAndDisplayWeather(
                 String.valueOf(location.getLongitude()),
@@ -48,32 +46,24 @@ public class MainActivity extends AppCompatActivity {
 
         // Get weather data (if we're online + have geolocation)
         if (Util.isNetworkingActive(mContext)) {
-            // If geolocation on : get location and call api
-            // Else : ask for permission
-            // If permission denied : back out and show message
-
-            boolean permissionsNotGranted = ContextCompat.checkSelfPermission(mContext, PERMISSION_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(mContext, PERMISSION_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-            if (permissionsNotGranted) {
-                ActivityCompat.requestPermissions(this, new String[]{PERMISSION_COARSE_LOCATION, PERMISSION_FINE_LOCATION}, REQUEST_CODE);
+            boolean permissionGranted = Util.isGeolocationPermissionGranted(mContext);
+            if (permissionGranted) {
+                configureLocationListener(LocationManager.GPS_PROVIDER);
             } else {
-                configureLocationListener();
+                requestGeolocationPermissions();
             }
         } else {
             updateViewNoConnection();
         }
     }
 
-    private void configureLocationListener() {
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
-    }
 
     private void requestAndDisplayWeather(String longitude, String latitude) {
+        mLocationManager.removeUpdates(mLocationListener);
         mApi.requestCityByCoordinates(longitude, latitude, new OpenWeatherMapApi.OnResponseInterface() {
             @Override
             public void onSuccess(City city) {
                 Log.d("APP", "Got API response for " + city.getmName());
-                mLocationManager.removeUpdates(mLocationListener);
                 runOnUiThread(() -> displayCity(city));
             }
 
@@ -98,33 +88,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateViewNoConnection() {
-        mBinding.linearLayoutCurrentCity.setVisibility(View.INVISIBLE);
-        mBinding.floatingActionButtonFavorite.setVisibility(View.INVISIBLE);
-        mBinding.textViewErrorMessage.setVisibility(View.VISIBLE);
-        mBinding.textViewErrorMessage.setText(R.string.no_connexion);
+        hideWeather();
+        showMessage(R.string.no_connexion);
     }
 
     public void updateViewNoGeolocation() {
+        hideWeather();
+        showMessage(R.string.no_geolocation);
+    }
+
+    private void hideWeather() {
         mBinding.linearLayoutCurrentCity.setVisibility(View.INVISIBLE);
         mBinding.floatingActionButtonFavorite.setVisibility(View.INVISIBLE);
+    }
+
+    private void showMessage(int messageId) {
         mBinding.textViewErrorMessage.setVisibility(View.VISIBLE);
-        mBinding.textViewErrorMessage.setText(R.string.no_geolocation);
+        mBinding.textViewErrorMessage.setText(messageId);
     }
 
     private void showErrorToast(int messageId) {
         Toast.makeText(mContext, getText(messageId), Toast.LENGTH_SHORT).show();
     }
 
+    private void requestGeolocationPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, GEOLOCATION_PERMISSION_REQUEST_CODE);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == GEOLOCATION_PERMISSION_REQUEST_CODE) {
+            // I'm unsure about this if
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                configureLocationListener();
+                configureLocationListener(LocationManager.GPS_PROVIDER);
+            } else if (grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                configureLocationListener(LocationManager.NETWORK_PROVIDER);
             } else {
                 updateViewNoGeolocation();
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    private void configureLocationListener(String gpsProvider) {
+        Log.d("APP", "configureLocationListener() called with: gpsProvider = [" + gpsProvider + "]");
+        mLocationManager.requestLocationUpdates(gpsProvider, 0, 0, mLocationListener);
     }
 }

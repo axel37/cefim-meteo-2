@@ -1,9 +1,12 @@
 package fr.axelc.cefimmeteo.utils;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import androidx.core.content.ContextCompat;
 import fr.axelc.cefimmeteo.models.City;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -21,6 +24,11 @@ public class Util {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnected();
+    }
+
+    public static boolean isGeolocationPermissionGranted(Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     public static void saveFavoriteCities(Context context, ArrayList<City> cities) {
