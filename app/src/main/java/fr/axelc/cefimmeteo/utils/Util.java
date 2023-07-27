@@ -17,7 +17,7 @@ public class Util {
     private static final String PREFS_NAME = "MeteoCefimPreferences";
     private static final String PREFS_FAVORITE_CITIES = "FavoriteCities";
 
-    public static boolean isActiveNetwork(Context context) {
+    public static boolean isNetworkingActive(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnected();

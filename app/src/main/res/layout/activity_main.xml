@@ -7,11 +7,11 @@
     android:background="@color/background_grey">
 
     <TextView
-        android:id="@+id/text_view_no_connection"
+        android:id="@+id/text_view_error_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="@string/no_connexion"
+        tools:text="@string/no_connexion"
         android:textSize="@dimen/text_size_medium"
         android:visibility="gone" />
 
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
                 android:gravity="right"
-                android:text="@string/city_temp"
+                tools:text="@string/city_temp"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_size_xlarge" />
         </LinearLayout>
