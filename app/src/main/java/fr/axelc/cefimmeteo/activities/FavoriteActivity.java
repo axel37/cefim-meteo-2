@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 public class FavoriteActivity extends AppCompatActivity {
     private static final String API_URL_BASE = "https://api.openweathermap.org";
-    private static final String API_URL_GEO = API_URL_BASE + "/geo/1.0/";
+    private static final String API_URL_GEO = API_URL_BASE + "/geo/1.0/direct";
     private static final String API_URL_WEATHER = API_URL_BASE + "/data/2.5/weather";
     private static final String API_WEATHER_OPTIONS = "&units=metric&lang=fr";
     private static final String API_AUTH = "&appid=8db629c9dd7b6e807faf04d2135f6d89";
@@ -84,7 +84,7 @@ public class FavoriteActivity extends AppCompatActivity {
      * Request API for weather data by city name then display results.
      */
     private void doWeatherRequests(String cityName) {
-        String urlTemplate = API_URL_GEO + "direct?q=%s&limit=1" + API_AUTH;
+        String urlTemplate = API_URL_GEO + "?q=%s&limit=1" + API_AUTH;
         Request geocoderRequest = new Request.Builder().url(String.format(urlTemplate, cityName)).build();
         httpClient.newCall(geocoderRequest).enqueue(new Callback() {
             @Override
@@ -162,9 +162,7 @@ public class FavoriteActivity extends AppCompatActivity {
     private void onWeatherRequestResponseSuccess(@NotNull Response response) {
         try {
             String responseString = response.body().string();
-            runOnUiThread(() -> {
-                addCityToListFromJson(responseString);
-            });
+            runOnUiThread(() -> addCityToListFromJson(responseString));
         } catch (Exception e) {
             showErrorToastAndLog(
                     R.string.favorite_error_couldnt_get_weather,
