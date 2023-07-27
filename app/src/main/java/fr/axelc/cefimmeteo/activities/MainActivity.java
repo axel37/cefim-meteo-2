@@ -34,12 +34,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(City city) {
                     Log.d("APP", "Got API response for " + city.getmName());
-                    runOnUiThread(() -> updateUi(city));
+                    runOnUiThread(() -> displayCity(city));
                 }
 
                 @Override
                 public void onError() {
-                    runOnUiThread(() -> Toast.makeText(mContext, getText(R.string.favorite_error_couldnt_get_weather), Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> showErrorToast(R.string.favorite_error_couldnt_get_weather));
                 }
             });
         } else {
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void updateUi(City city) {
+    public void displayCity(City city) {
         mBinding.textViewCityName.setText(city.getmName());
         mBinding.textViewCityTemp.setText(city.getmTemperature());
         mBinding.textViewCityDesc.setText(city.getmDescription());
@@ -64,5 +64,9 @@ public class MainActivity extends AppCompatActivity {
         mBinding.linearLayoutCurrentCity.setVisibility(View.INVISIBLE);
         mBinding.floatingActionButtonFavorite.setVisibility(View.INVISIBLE);
         mBinding.textViewNoConnection.setVisibility(View.VISIBLE);
+    }
+
+    private void showErrorToast(int messageId) {
+        Toast.makeText(mContext, getText(messageId), Toast.LENGTH_SHORT).show();
     }
 }

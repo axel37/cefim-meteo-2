@@ -44,26 +44,34 @@ public class FavoriteActivity extends AppCompatActivity {
                     View v = LayoutInflater.from(mContext).inflate(R.layout.dialog_add_favorite, null);
                     final EditText editTextCity = v.findViewById(R.id.favorite_add_edit_text_city);
                     builder.setView(v);
+
+                    // User adds a city to their favorites
                     builder.setPositiveButton(getString(R.string.favorite_add_confirm), (dialogInterface, i) ->
-                            api.requestCityByName(editTextCity.getText().toString(), new OpenWeatherMapApi.OnResponseInterface() {
-                                @Override
-                                public void onSuccess(City city) {
-                                    Log.d("APP", "Got API response for " + city.getmName());
-                                    runOnUiThread(() -> addCityToList(city));
-                                }
+                            api.requestCityByName(
+                                    editTextCity.getText().toString(),
+                                    new OpenWeatherMapApi.OnResponseInterface() {
+                                        @Override
+                                        public void onSuccess(City city) {
+                                            Log.d("APP", "Got API response for " + city.getmName());
+                                            runOnUiThread(() -> addCityToList(city));
+                                        }
 
-                                @Override
-                                public void onError() {
-                                    runOnUiThread(() -> Toast.makeText(mContext, getText(R.string.favorite_error_couldnt_get_weather), Toast.LENGTH_SHORT).show());
-                                }
+                                        @Override
+                                        public void onError() {
+                                            runOnUiThread(() -> Toast.makeText(
+                                                    mContext,
+                                                    getText(R.string.favorite_error_couldnt_get_weather),
+                                                    Toast.LENGTH_SHORT).show()
+                                            );
+                                        }
 
-                            })
+                                    })
                     );
                     builder.create().show();
                 }
         );
 
-        initCityList();
+        loadAndDisplayCities();
     }
 
     @Override
@@ -73,9 +81,9 @@ public class FavoriteActivity extends AppCompatActivity {
     }
 
     /**
-     * Create list of cities and bind it RecyclerViewCities
+     * Create list of cities and bind it to RecyclerViewCities
      */
-    private void initCityList() {
+    private void loadAndDisplayCities() {
         mCities = Util.loadFavoriteCities(mContext);
 
         binding.included.recyclerViewCities.setLayoutManager(new LinearLayoutManager(this));
@@ -83,6 +91,9 @@ public class FavoriteActivity extends AppCompatActivity {
         binding.included.recyclerViewCities.setAdapter(mAdapter);
     }
 
+    /**
+     * Add city and update view
+     */
     private void addCityToList(City city) {
         mCities.add(0, city);
         mAdapter.notifyItemInserted(0);
