@@ -53,8 +53,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(Double.parseDouble(mCity.getmLatitude()), Double.parseDouble(mCity.getmLongitude()));
-        mMap.addMarker(new MarkerOptions().position(sydney).title(getString(R.string.map_selected_city)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng selectedCity = new LatLng(Double.parseDouble(mCity.getmLatitude()), Double.parseDouble(mCity.getmLongitude()));
+        mMap.addMarker(new MarkerOptions().position(selectedCity).title(getString(R.string.map_selected_city)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(selectedCity));
     }
 }
