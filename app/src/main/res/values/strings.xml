@@ -107,5 +107,6 @@
     <string name="favorite_error_cant_add_favorite">Could not add city to favorites.</string>
     <string name="favorite_error_couldnt_get_weather">Could not fetch weather data.</string>
     <string name="no_geolocation">No Geolocation data.</string>
+    <string name="title_activity_maps">MapsActivity</string>
 
 </resources>
