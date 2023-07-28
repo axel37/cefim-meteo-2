@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private OpenWeatherMapApi mApi;
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
+    private City mCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(City city) {
                 Log.d("APP", "Got API response for " + city.getmName());
-                runOnUiThread(() -> displayCity(city));
+                mCity = city;
+                runOnUiThread(() -> displayCity());
             }
 
             @Override
@@ -79,11 +81,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void displayCity(City city) {
-        mBinding.textViewCityName.setText(city.getmName());
-        mBinding.textViewCityTemp.setText(city.getmTemperature());
-        mBinding.textViewCityDesc.setText(city.getmDescription());
-        mBinding.imageViewCityWeather.setImageResource(city.getmWeatherIcon());
+    public void displayCity() {
+        mBinding.textViewCityName.setText(mCity.getmName());
+        mBinding.textViewCityTemp.setText(mCity.getmTemperature());
+        mBinding.textViewCityDesc.setText(mCity.getmDescription());
+        mBinding.imageViewCityWeather.setImageResource(mCity.getmWeatherIcon());
     }
 
     public void updateViewNoConnection() {
