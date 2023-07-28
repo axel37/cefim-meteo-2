@@ -32,18 +32,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Setup activity
         super.onCreate(savedInstanceState);
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
         mContext = this;
         mBinding.floatingActionButtonFavorite.setOnClickListener(view -> goToFavoriteActivity());
         mApi = new OpenWeatherMapApi();
-        // Geolocation
+        // Setup geolocation
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mLocationListener = location -> requestAndDisplayWeather(
                 String.valueOf(location.getLongitude()),
                 String.valueOf(location.getLatitude())
         );
+
 
         // Get weather data (if we're online + have geolocation)
         if (Util.isNetworkingActive(mContext)) {
@@ -53,9 +55,17 @@ public class MainActivity extends AppCompatActivity {
                 requestGeolocationPermissions();
             }
         } else {
-            updateViewNoConnection();
+            displayNoConnectionMessage();
         }
     }
+
+
+
+
+
+
+
+
 
 
     private void requestAndDisplayWeather(String longitude, String latitude) {
@@ -75,11 +85,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void goToFavoriteActivity() {
-        Intent intent = new Intent(mContext, FavoriteActivity.class);
-        intent.putExtra(Util.KEY_MESSAGE, mBinding.editTextMessage.getText().toString());
-        startActivity(intent);
-    }
+
 
     public void displayCity() {
         mBinding.textViewCityName.setText(mCity.getmName());
@@ -88,12 +94,28 @@ public class MainActivity extends AppCompatActivity {
         mBinding.imageViewCityWeather.setImageResource(mCity.getmWeatherIcon());
     }
 
-    public void updateViewNoConnection() {
+
+
+
+
+
+
+
+
+
+
+    private void goToFavoriteActivity() {
+        Intent intent = new Intent(mContext, FavoriteActivity.class);
+        intent.putExtra(Util.KEY_MESSAGE, mBinding.editTextMessage.getText().toString());
+        startActivity(intent);
+    }
+
+    public void displayNoConnectionMessage() {
         hideWeather();
         showMessage(R.string.no_connexion);
     }
 
-    public void updateViewNoGeolocation() {
+    public void displayNoGeolocationMessage() {
         hideWeather();
         showMessage(R.string.no_geolocation);
     }
@@ -125,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 configureLocationListener(LocationManager.NETWORK_PROVIDER);
             } else {
-                updateViewNoGeolocation();
+                displayNoGeolocationMessage();
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
