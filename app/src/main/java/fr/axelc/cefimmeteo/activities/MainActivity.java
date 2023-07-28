@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
                 String.valueOf(location.getLatitude())
         );
 
+        //
 
         // Get weather data (if we're online + have geolocation)
         if (Util.isNetworkingActive(mContext)) {
@@ -88,10 +89,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void displayCity() {
-        mBinding.textViewCityName.setText(mCity.getmName());
-        mBinding.textViewCityTemp.setText(mCity.getmTemperature());
-        mBinding.textViewCityDesc.setText(mCity.getmDescription());
-        mBinding.imageViewCityWeather.setImageResource(mCity.getmWeatherIcon());
+        City display = mCity;
+
+        mBinding.textViewCityName.setText(display.getmName());
+        mBinding.textViewCityTemp.setText(display.getmTemperature());
+        mBinding.textViewCityDesc.setText(display.getmDescription());
+        mBinding.imageViewCityWeather.setImageResource(display.getmWeatherIcon());
     }
 
 
