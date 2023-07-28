@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.ViewModelProvider;
 import fr.axelc.cefimmeteo.R;
 import fr.axelc.cefimmeteo.databinding.ActivityMainBinding;
 import fr.axelc.cefimmeteo.models.City;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private OpenWeatherMapApi mApi;
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
-    private City mCity;
+    private MainActivityViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +47,13 @@ public class MainActivity extends AppCompatActivity {
                 String.valueOf(location.getLatitude())
         );
 
-        //
+        mViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
         // Get weather data (if we're online + have geolocation)
-        if (Util.isNetworkingActive(mContext)) {
+        if (mViewModel.getCity() != null) {
+            Log.d("APP", "Using existing viewmodel : displaying cached data.");
+            displayCity();
+        } else if (Util.isNetworkingActive(mContext)) {
             if (Util.isGeolocationPermissionGranted(mContext)) {
                 configureLocationListener(LocationManager.GPS_PROVIDER);
             } else {
@@ -75,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(City city) {
                 Log.d("APP", "Got API response for " + city.getmName());
-                mCity = city;
+                mViewModel.setCity(city);
                 runOnUiThread(() -> displayCity());
             }
 
@@ -89,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void displayCity() {
-        City display = mCity;
+        City display = mViewModel.getCity();
 
         mBinding.textViewCityName.setText(display.getmName());
         mBinding.textViewCityTemp.setText(display.getmTemperature());
