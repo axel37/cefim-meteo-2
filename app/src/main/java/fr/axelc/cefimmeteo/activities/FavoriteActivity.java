@@ -7,15 +7,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import fr.axelc.cefimmeteo.R;
 import fr.axelc.cefimmeteo.adapters.FavoriteAdapter;
 import fr.axelc.cefimmeteo.databinding.ActivityFavoriteBinding;
 import fr.axelc.cefimmeteo.models.City;
 import fr.axelc.cefimmeteo.utils.OpenWeatherMapApi;
 import fr.axelc.cefimmeteo.utils.Util;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -89,6 +93,8 @@ public class FavoriteActivity extends AppCompatActivity {
         binding.included.recyclerViewCities.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new FavoriteAdapter(mContext, mCities);
         binding.included.recyclerViewCities.setAdapter(mAdapter);
+
+        createToucheHelper().attachToRecyclerView(binding.included.recyclerViewCities);
     }
 
     /**
@@ -97,5 +103,29 @@ public class FavoriteActivity extends AppCompatActivity {
     private void addCityToList(City city) {
         mCities.add(0, city);
         mAdapter.notifyItemInserted(0);
+    }
+
+    private void removeCityAtPosition(int position) {
+        mCities.remove(position);
+        mAdapter.notifyItemRemoved(position);
+    }
+
+    @NotNull
+    private ItemTouchHelper createToucheHelper() {
+        return new ItemTouchHelper(
+                new ItemTouchHelper.SimpleCallback(
+                        0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                    @Override
+                    public boolean onMove(@NonNull @NotNull RecyclerView recyclerView, @NonNull @NotNull RecyclerView.ViewHolder viewHolder, @NonNull @NotNull RecyclerView.ViewHolder target) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull @NotNull RecyclerView.ViewHolder viewHolder, int direction) {
+                        FavoriteAdapter.ViewHolder view = (FavoriteAdapter.ViewHolder) viewHolder;
+                        int position = view.getLayoutPosition();
+                        removeCityAtPosition(position);
+                    }
+                });
     }
 }

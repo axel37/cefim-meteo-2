@@ -69,7 +69,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
         public ViewHolder(View view) {
             super(view);
-            view.setOnLongClickListener(this);
+//            view.setOnLongClickListener(this);
             view.setOnClickListener(this);
             mTextViewCityName = view.findViewById(R.id.city_name);
             mTextViewCityDescription = view.findViewById(R.id.city_description);
