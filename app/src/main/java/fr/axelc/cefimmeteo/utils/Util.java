@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 public class Util {
     public static final String KEY_MESSAGE = "key_message";
+    public static final String KEY_MAP_CITY = "key_city";
     private static final String PREFS_NAME = "MeteoCefimPreferences";
     private static final String PREFS_FAVORITE_CITIES = "FavoriteCities";
 

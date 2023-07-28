@@ -108,5 +108,6 @@
     <string name="favorite_error_couldnt_get_weather">Could not fetch weather data.</string>
     <string name="no_geolocation">No Geolocation data.</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="map_selected_city">Selected city</string>
 
 </resources>

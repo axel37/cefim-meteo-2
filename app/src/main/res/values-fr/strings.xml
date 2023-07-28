@@ -19,4 +19,6 @@
     <string name="favorite_error_cant_add_favorite">Impossible d\'ajouter la ville aux favoris.</string>
     <string name="favorite_error_couldnt_get_weather">Impossible de récupérer la météo.</string>
     <string name="no_geolocation">Pas de données GPS.</string>
+    <string name="title_activity_maps">Carte</string>
+    <string name="map_selected_city">Ville sélectionnée</string>
 </resources>

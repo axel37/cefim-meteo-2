@@ -2,6 +2,8 @@ package fr.axelc.cefimmeteo.adapters;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +12,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.RecyclerView;
 import fr.axelc.cefimmeteo.R;
+import fr.axelc.cefimmeteo.activities.FavoriteActivity;
+import fr.axelc.cefimmeteo.activities.MapsActivity;
 import fr.axelc.cefimmeteo.models.City;
+import fr.axelc.cefimmeteo.utils.Util;
 
 import java.util.ArrayList;
+
+import static androidx.core.content.ContextCompat.startActivity;
 
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
@@ -52,7 +60,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         return mCities.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener, View.OnClickListener {
         private City mCity;
         private TextView mTextViewCityName;
         private TextView mTextViewCityDescription;
@@ -62,6 +70,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         public ViewHolder(View view) {
             super(view);
             view.setOnLongClickListener(this);
+            view.setOnClickListener(this);
             mTextViewCityName = view.findViewById(R.id.city_name);
             mTextViewCityDescription = view.findViewById(R.id.city_description);
             mTextViewCityTemperature = view.findViewById(R.id.city_temperature);
@@ -83,6 +92,14 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             });
             builder.create().show();
             return true;
+        }
+
+        @Override
+        public void onClick(View v) {
+            // Go to Maps activity
+            Intent intent = new Intent(mContext, MapsActivity.class);
+            intent.putExtra(Util.KEY_MAP_CITY, mCity);
+            startActivity(mContext, intent, new Bundle());
         }
     }
 }

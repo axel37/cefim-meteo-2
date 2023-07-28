@@ -1,10 +1,13 @@
 package fr.axelc.cefimmeteo.models;
 
+import android.util.Log;
 import fr.axelc.cefimmeteo.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class City {
+import java.io.Serializable;
+
+public class City implements Serializable {
     private static final String ICON_DAY_CLEAR_SKY = "01d";
     private static final String ICON_NIGHT_CLEAR_SKY = "01n";
     private static final String ICON_DAY_FEW_CLOUDS = "02d";
@@ -28,6 +31,8 @@ public class City {
     private String mTemperature;
     private int mWeatherIcon;
     private String mJsonString;
+    private String mLatitude;
+    private String mLongitude;
 
     public City(String mName, String mDescription, String mTemperature, int mWeatherIcon) {
         this.mName = mName;
@@ -37,10 +42,13 @@ public class City {
     }
 
     public City(String json) throws JSONException {
+        Log.d("APP", "City() called with: json = [" + json + "]");
         JSONObject jsonObject = new JSONObject(json);
         mName = jsonObject.getString("name");
         mDescription = jsonObject.getJSONArray("weather").getJSONObject(0).getString("description");
         mTemperature = jsonObject.getJSONObject("main").getString("temp") + "°C";
+        mLongitude = jsonObject.getJSONObject("coord").getString("lon");
+        mLatitude = jsonObject.getJSONObject("coord").getString("lat");
         String iconId = jsonObject.getJSONArray("weather").getJSONObject(0).getString("icon");
         setIconFromIconId(iconId);
         mJsonString = json;
@@ -107,5 +115,13 @@ public class City {
 
     public String getmJsonString() {
         return mJsonString;
+    }
+
+    public String getmLatitude() {
+        return mLatitude;
+    }
+
+    public String getmLongitude() {
+        return mLongitude;
     }
 }

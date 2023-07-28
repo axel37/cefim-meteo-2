@@ -1,5 +1,6 @@
 package fr.axelc.cefimmeteo.activities;
 
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import android.os.Bundle;
@@ -12,23 +13,30 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import fr.axelc.cefimmeteo.R;
 import fr.axelc.cefimmeteo.databinding.ActivityMapsBinding;
+import fr.axelc.cefimmeteo.models.City;
+import fr.axelc.cefimmeteo.utils.Util;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
+    private City mCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Get city from intent
+        mCity = (City) getIntent().getExtras().get(Util.KEY_MAP_CITY);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
     }
 
     /**
@@ -45,8 +53,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        LatLng sydney = new LatLng(Double.parseDouble(mCity.getmLatitude()), Double.parseDouble(mCity.getmLongitude()));
+        mMap.addMarker(new MarkerOptions().position(sydney).title(getString(R.string.map_selected_city)));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 }
