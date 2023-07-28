@@ -21,4 +21,5 @@
     <string name="no_geolocation">Pas de données GPS.</string>
     <string name="title_activity_maps">Carte</string>
     <string name="map_selected_city">Ville sélectionnée</string>
+    <string name="favorite_removed">%1$s retirée</string>
 </resources>

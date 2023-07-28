@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.snackbar.Snackbar;
 import fr.axelc.cefimmeteo.R;
 import fr.axelc.cefimmeteo.adapters.FavoriteAdapter;
 import fr.axelc.cefimmeteo.databinding.ActivityFavoriteBinding;
@@ -40,40 +41,30 @@ public class FavoriteActivity extends AppCompatActivity {
         mContext = this;
         api = new OpenWeatherMapApi();
 
-        binding.fab.setOnClickListener(view ->
-                {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                    builder.setTitle(R.string.favorite_add);
-                    builder.setMessage(R.string.favorite_add_description);
-                    View v = LayoutInflater.from(mContext).inflate(R.layout.dialog_add_favorite, null);
-                    final EditText editTextCity = v.findViewById(R.id.favorite_add_edit_text_city);
-                    builder.setView(v);
+        binding.fab.setOnClickListener(view -> {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setTitle(R.string.favorite_add);
+            builder.setMessage(R.string.favorite_add_description);
+            View v = LayoutInflater.from(mContext).inflate(R.layout.dialog_add_favorite, null);
+            final EditText editTextCity = v.findViewById(R.id.favorite_add_edit_text_city);
+            builder.setView(v);
 
-                    // User adds a city to their favorites
-                    builder.setPositiveButton(getString(R.string.favorite_add_confirm), (dialogInterface, i) ->
-                            api.requestCityByName(
-                                    editTextCity.getText().toString(),
-                                    new OpenWeatherMapApi.OnResponseInterface() {
-                                        @Override
-                                        public void onSuccess(City city) {
-                                            Log.d("APP", "Got API response for " + city.getmName());
-                                            runOnUiThread(() -> addCityToList(city));
-                                        }
-
-                                        @Override
-                                        public void onError() {
-                                            runOnUiThread(() -> Toast.makeText(
-                                                    mContext,
-                                                    getText(R.string.favorite_error_couldnt_get_weather),
-                                                    Toast.LENGTH_SHORT).show()
-                                            );
-                                        }
-
-                                    })
-                    );
-                    builder.create().show();
+            // User adds a city to their favorites
+            builder.setPositiveButton(getString(R.string.favorite_add_confirm), (dialogInterface, i) -> api.requestCityByName(editTextCity.getText().toString(), new OpenWeatherMapApi.OnResponseInterface() {
+                @Override
+                public void onSuccess(City city) {
+                    Log.d("APP", "Got API response for " + city.getmName());
+                    runOnUiThread(() -> addCityToList(city));
                 }
-        );
+
+                @Override
+                public void onError() {
+                    runOnUiThread(() -> Toast.makeText(mContext, getText(R.string.favorite_error_couldnt_get_weather), Toast.LENGTH_SHORT).show());
+                }
+
+            }));
+            builder.create().show();
+        });
 
         loadAndDisplayCities();
     }
@@ -101,31 +92,41 @@ public class FavoriteActivity extends AppCompatActivity {
      * Add city and update view
      */
     private void addCityToList(City city) {
-        mCities.add(0, city);
-        mAdapter.notifyItemInserted(0);
+        addCityToListAtPosition(city, 0);
+    }
+
+    private void addCityToListAtPosition(City city, int position) {
+        mCities.add(position, city);
+        mAdapter.notifyItemInserted(position);
     }
 
     private void removeCityAtPosition(int position) {
-        mCities.remove(position);
+        City removed = mCities.remove(position);
         mAdapter.notifyItemRemoved(position);
+
+        Snackbar.make(
+                        binding.getRoot(),
+                        getString(R.string.favorite_removed, removed.getmName()),
+                        Snackbar.LENGTH_INDEFINITE
+                )
+                .setAction(R.string.favorite_remove_cancel, v -> addCityToListAtPosition(removed, position))
+                .show();
     }
 
     @NotNull
     private ItemTouchHelper createToucheHelper() {
-        return new ItemTouchHelper(
-                new ItemTouchHelper.SimpleCallback(
-                        0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-                    @Override
-                    public boolean onMove(@NonNull @NotNull RecyclerView recyclerView, @NonNull @NotNull RecyclerView.ViewHolder viewHolder, @NonNull @NotNull RecyclerView.ViewHolder target) {
-                        return false;
-                    }
+        return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull @NotNull RecyclerView recyclerView, @NonNull @NotNull RecyclerView.ViewHolder viewHolder, @NonNull @NotNull RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-                    @Override
-                    public void onSwiped(@NonNull @NotNull RecyclerView.ViewHolder viewHolder, int direction) {
-                        FavoriteAdapter.ViewHolder view = (FavoriteAdapter.ViewHolder) viewHolder;
-                        int position = view.getLayoutPosition();
-                        removeCityAtPosition(position);
-                    }
-                });
+            @Override
+            public void onSwiped(@NonNull @NotNull RecyclerView.ViewHolder viewHolder, int direction) {
+                FavoriteAdapter.ViewHolder view = (FavoriteAdapter.ViewHolder) viewHolder;
+                int position = view.getLayoutPosition();
+                removeCityAtPosition(position);
+            }
+        });
     }
 }

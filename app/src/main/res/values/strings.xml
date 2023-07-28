@@ -102,12 +102,13 @@
     <string name="favorite_add_cancel">Cancel</string>
     <string name="favorite_remove_title">Remove %1$s from your favorites ?</string>
     <string name="favorite_remove_confirm">Remove</string>
-    <string name="favorite_remove_cancel">Cancel</string>
+    <string name="favorite_remove_cancel">Undo</string>
     <string name="favorite_error_cant_find_city">Could not find city.</string>
     <string name="favorite_error_cant_add_favorite">Could not add city to favorites.</string>
     <string name="favorite_error_couldnt_get_weather">Could not fetch weather data.</string>
     <string name="no_geolocation">No Geolocation data.</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="map_selected_city">Selected city</string>
+    <string name="favorite_removed">Removed %1$s</string>
 
 </resources>
